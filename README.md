@@ -4,7 +4,7 @@
 
 *MobX is awesome* for state management but if you are using it
 in a Meteor application for managing client side reactive state it would be a shame 
-not to leverage Tracker and Meteors Tracker-aware reactive data sources such as Minimongo.
+not to leverage Tracker and Tracker-aware reactive data sources such as Minimongo.
 
 This package glues Meteor.Tracker and MobX autorun and enables 
 writing autorun functions that depend on Meteor reactive data sources
@@ -53,17 +53,26 @@ export default () => {
 };
 ```
 
-**3. Start your Tracker/MobX autorun:**
+**3. Starting Tracker/MobX autorun:**
 
 ```javascript
+// index.js
 import autorun from 'meteor/space:tracker-mobx-autorun';
-import todosAutorun from './autoruns/todos';
+import todos from './autoruns/todos';
+
+export const todosAutorun = autorun(todos);
 
 Meteor.startup(function() {
   if (Meteor.isClient) {
-    autorun(todosAutorun).start();
+    todosAutorun.start();
   }
 });
-
 ```
 
+**4. Stopping Tracker/MobX autorun:**
+
+```javascript
+import todosAutorun from '../index';
+
+todosAutorun.stop();
+```
