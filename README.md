@@ -4,11 +4,11 @@
 
 *MobX is awesome* for state management but if you are using it
 in a Meteor application for managing client side reactive state it would be a shame 
-not to leverage Tracker and Meteor reactive data sources such as Minimongo.
+not to leverage Tracker and Meteors Tracker-aware reactive data sources such as Minimongo.
 
 This package glues Meteor.Tracker and MobX autorun and enables 
 writing autorun functions that depend on Meteor reactive data sources
-and/or mobx observables.
+and/or MobX observables.
 
 > Why is writing Tracker.autoruns not enough when the state is being managed by MobX?
 
