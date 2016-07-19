@@ -75,7 +75,7 @@ Meteor.startup(function() {
 **4. Stopping Tracker/MobX autorun:**
 
 ```javascript
-import todosAutorun from '../index';
+import { todosAutorun } from '../index';
 
 todosAutorun.stop();
 ```
