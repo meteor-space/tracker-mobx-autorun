@@ -42,14 +42,12 @@ export default store = observable({
 
 ```javascript
 // autoruns/todos.js
-import store from '../my-store';
+import state from '../my-store';
 import * as Collections from '../../infrastructure/collections';
 import { Meteor } from 'meteor/meteor';
 
 export default () => {
-  const state = store.getState();
-  const projectId = store.selectedProjectId;
-  
+  const projectId = state.selectedProjectId;
   Meteor.subscribe('todos', {projectId});
   state.projectTodos = Collections.Todos.find({projectId}).fetch();
 };
