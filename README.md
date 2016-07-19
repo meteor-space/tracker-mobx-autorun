@@ -63,7 +63,7 @@ import todosAutorun from './autoruns/todos';
 
 Meteor.startup(function() {
   if (Meteor.isClient) {
-    autorun(todosAutorun).start();App.start();
+    autorun(todosAutorun).start();
   }
 });
 
