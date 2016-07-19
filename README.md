@@ -15,6 +15,9 @@ and/or MobX observables.
 One reactive state needs to invalidate/dispose the other, without that Tracker.autorun
 would receive only initial values.
 
+## Motivation
+![aNativ image](trello-card.png?raw=true)
+
 ## Installation
 
 `meteor add space:tracker-mobx-autorun`
@@ -76,3 +79,5 @@ import todosAutorun from '../index';
 
 todosAutorun.stop();
 ```
+
+Developed with sponsorship from [dyzio - social video marketing made easy](https://www.dyzio.co)
