@@ -17,6 +17,16 @@ would receive only initial values.
 
 ## Motivation
 ![aNativ image](trello-card.png?raw=true)
+*Trello card from April 2016 showing diff of React container component
+for displaying currently selected project name
+before and after refactoring which removed Tracker.Component and introduced
+`observer` decorator from `mobx-react` which enabled React component to
+update when attributes used in component where updated in MobX managed state.
+Application code for managing subscriptions and client state was reduced by 80%
+in a relatively big project on which it was introduced. Number of unneeded
+re-renderings was reduced to 0 thanks to `mobx-react` `observer`,
+[this post](https://github.com/mobxjs/mobx/issues/101#issuecomment-220891704)
+explains how to use it properly.*
 
 ## Installation
 
@@ -24,7 +34,10 @@ would receive only initial values.
 
 *Compatible with `Meteor 1.3.x - 1.4.x`*
 
-`meteor npm install mobx`
+*`mobx` npm dependency is also needed, installing this package will
+display a warning message if `mobx` is not installed:*
+
+`meteor npm install --save mobx`
 
 ## Usage
 
@@ -41,7 +54,7 @@ export default store = observable({
 
 ```
 
-**2. Write autorun function that depends on Meteor reactive data source:**
+**2. Write autorun function that depends on Tracker-aware reactive data sources:**
 
 ```javascript
 // autoruns/todos.js
