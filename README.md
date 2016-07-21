@@ -1,49 +1,10 @@
-# Meteor.Tracker/MobX Autorun
+# Tracker MobX autorun
 
-**Meteor.Tracker and MobX integration**
+_Integrate Meteor reactive data with [MobX](https://mobxjs.github.io/mobx/) for simple yet highly optimized state management_
 
-*MobX is awesome* for state management but if you are using it
-in a Meteor application for managing client side reactive state it would be a shame 
-not to leverage Tracker and Tracker-aware reactive data sources such as Minimongo.
+MobX and [Tracker](https://docs.meteor.com/api/tracker.html#Tracker-autorun) can both [autorun](https://mobxjs.github.io/mobx/refguide/autorun.html) code when a dependency changes, however caching a copy of Meteor reactive data in a MobX store requires a significant amount of boilerplate. This package handles the complexity and provides an `autorun` that can be triggered by a change to _either_ a MobX [observable](https://mobxjs.github.io/mobx/refguide/observable.html) _or_ Meteor reactive data source.
 
-This package glues Meteor.Tracker and MobX autorun and enables 
-writing autorun functions that depend on Meteor reactive data sources
-and/or MobX observables.
-
-> Why is writing Tracker.autoruns not enough when the state is being managed by MobX?
-
-One reactive state needs to invalidate/dispose the other, without that Tracker.autorun
-would receive only initial values.
-
-## Motivation
-![aNativ image](trello-card.png?raw=true)
-*Trello card from April 2016 showing diff of React container component
-for displaying currently selected project name
-before and after refactoring which removed Tracker.Component and introduced
-`observer` decorator from `mobx-react` which enabled React component to
-update when attributes used in component where updated in MobX managed state.
-Application code for managing subscriptions and client state was reduced by 80%
-in a relatively big project on which it was introduced. Number of unneeded
-re-renderings was reduced to 0 thanks to `mobx-react` `observer`,
-[this post](https://github.com/mobxjs/mobx/issues/101#issuecomment-220891704)
-explains how to use it properly.*
-
-## Installation
-
-`meteor add space:tracker-mobx-autorun`
-
-*Compatible with `Meteor 1.3.x - 1.4.x`*
-
-*`mobx` npm dependency is also needed, installing this package will
-display a warning message if `mobx` is not installed:*
-
-`meteor npm install --save mobx`
-
-## Usage
-
-**1. Make UI state MobX observable:**
-
-```javascript
+``` javascript
 // my-store.js
 import { observable } from 'mobx';
 
@@ -52,29 +13,20 @@ export default store = observable({
   projectTodos: []
 });
 
-```
-
-**2. Write autorun function that depends on Tracker-aware reactive data sources:**
-
-```javascript
-// autoruns/todos.js
-import state from '../my-store';
+// autorun/todos.js
+import store from '../my-store';
 import * as Collections from '../../infrastructure/collections';
 import { Meteor } from 'meteor/meteor';
 
 export default () => {
-  const projectId = state.selectedProjectId;
+  const projectId = store.selectedProjectId;
   Meteor.subscribe('todos', {projectId});
-  state.projectTodos = Collections.Todos.find({projectId}).fetch();
+  store.projectTodos = Collections.Todos.find({projectId}).fetch();
 };
-```
 
-**3. Starting Tracker/MobX autorun:**
-
-```javascript
 // index.js
 import autorun from 'meteor/space:tracker-mobx-autorun';
-import todos from './autoruns/todos';
+import todos from './autorun/todos';
 
 export const todosAutorun = autorun(todos);
 
@@ -83,14 +35,28 @@ Meteor.startup(function() {
     todosAutorun.start();
   }
 });
+
 ```
 
-**4. Stopping Tracker/MobX autorun:**
 
-```javascript
-import { todosAutorun } from '../index';
+## Before and After
+![aNativ image](trello-card.png?raw=true)
+_Trello card from April 2016 - Before and after refactoring_
 
-todosAutorun.stop();
-```
+- React container component displays the currently selected project name.
+- Original implementation used Tracker.Component.
+- Application code for managing subscriptions and client state was reduced by 80%
+- Number of unnecessary re-renderings reduced to 0 thanks to mobx-react `observer`,
+[this post](https://github.com/mobxjs/mobx/issues/101#issuecomment-220891704)
+explains how to use it properly.
+
+## Installation
+
+`meteor add space:tracker-mobx-autorun`
+
+`npm install --save mobx mobx-react`
+
+_Meteor 1.3 +_
+
 
 Developed with sponsorship from [dyzio - social video marketing made easy](https://www.dyzio.co)
