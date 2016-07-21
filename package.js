@@ -1,7 +1,7 @@
 Package.describe({
   name: 'space:tracker-mobx-autorun',
   version: '0.1.0',
-  summary: 'Meteor.Tracker and Mobx integration',
+  summary: 'Integrate Meteor reactive data with MobX using autorun functions',
   git: 'https://github.com/meteor-space/reaction.git',
   documentation: 'README.md'
 });
