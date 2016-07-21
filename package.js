@@ -11,5 +11,5 @@ Package.onUse(function(api) {
   api.use('ecmascript');
   api.use('tracker');
   api.use('tmeasday:check-npm-versions');
-  api.mainModule('tracker-mobx-autorun.js', 'client');
+  api.mainModule('index.js', 'client');
 });
