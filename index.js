@@ -2,7 +2,7 @@ import { Tracker } from 'meteor/tracker';
 import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
 
 checkNpmVersions({
-  'mobx': '2.3.x'
+  'mobx': '2.x'
 }, 'space:tracker-mobx-autorun');
 
 const { autorun } = require('mobx');
