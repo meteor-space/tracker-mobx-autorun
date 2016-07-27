@@ -1,27 +1,32 @@
 # Tracker MobX autorun
 
-_Integrate Meteor reactive data with [MobX](https://mobxjs.github.io/mobx/) for simple yet highly optimized state management_
+_Integrate Meteor reactive data 
+([Tracker-aware reactive data sources](https://github.com/meteor/meteor/blob/devel/packages/tracker/README.md#tracker-aware-libraries-from-the-meteor-project))
+with [MobX](https://mobxjs.github.io/mobx/) for simple yet highly
+optimized state management_
 
 MobX and [Tracker](https://docs.meteor.com/api/tracker.html#Tracker-autorun) can both [autorun](https://mobxjs.github.io/mobx/refguide/autorun.html) code when a dependency changes, however caching a copy of Meteor reactive data in a MobX store requires a significant amount of boilerplate. This package handles the complexity and provides an `autorun` that can be triggered by a change to _either_ a MobX [observable](https://mobxjs.github.io/mobx/refguide/observable.html) _or_ Meteor reactive data source.
 
-``` javascript
+### Usage
+
+```javascript
 // my-store.js
 import { observable } from 'mobx';
 
-export default store = observable({
+export default observable({
   selectedProjectId: null,
   projectTodos: []
 });
 
 // autorun/todos.js
-import store from '../my-store';
+import state from '../my-store';
 import * as Collections from '../../infrastructure/collections';
 import { Meteor } from 'meteor/meteor';
 
 export default () => {
-  const projectId = store.selectedProjectId;
+  const projectId = state.selectedProjectId;
   Meteor.subscribe('todos', {projectId});
-  store.projectTodos = Collections.Todos.find({projectId}).fetch();
+  state.projectTodos = Collections.Todos.find({projectId}).fetch();
 };
 
 // index.js
@@ -38,6 +43,38 @@ Meteor.startup(function() {
 
 ```
 
+### Usage with MobX _strict mode_
+Using MobX [actions](https://mobxjs.github.io/mobx/refguide/action.html)
+is mandatory when strict mode is enabled.
+
+```javascript
+// index.js - enabling MobX strict mode
+import { useStrict } from 'mobx';
+useStrict(true);
+
+// actions/projects.js
+import state from '../store';
+import { action } from 'mobx';
+
+export const selectProject = action('selectProject', (projectId) => {
+  state.selectedProjectId = projectId;
+});
+
+// autorun/todos.js
+import state from '../my-store';
+import * as Collections from '../../infrastructure/collections';
+import { Meteor } from 'meteor/meteor';
+import { action } from 'mobx';
+
+export default () => {
+  const projectId = state.selectedProjectId;
+  Meteor.subscribe('todos', {projectId});
+  action('updateTodosFromAutorun', (todos) => {
+    state.projectTodos = todos;
+  })(projectId ? Collections.Todos.find({projectId}).fetch() : []);
+};
+
+```
 
 ## Before and After
 ![aNativ image](trello-card.png?raw=true)
