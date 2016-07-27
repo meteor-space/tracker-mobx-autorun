@@ -2,12 +2,12 @@ import { Tracker } from 'meteor/tracker';
 import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
 
 checkNpmVersions({
-  'mobx': '2.3.x'
-}, 'space:reaction');
+  'mobx': '2.x'
+}, 'space:tracker-mobx-autorun');
 
 const { autorun } = require('mobx');
 
-export default (reaction) => {
+export default (trackerMobxAutorun) => {
   let mobxDisposer = null;
   let computation = null;
   let hasBeenStarted;
@@ -21,7 +21,7 @@ export default (reaction) => {
         }
         mobxDisposer = autorun(() => {
           if (isFirstRun) {
-            reaction();
+            trackerMobxAutorun();
           } else {
             computation.invalidate();
           }
