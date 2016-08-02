@@ -26,7 +26,9 @@ import { Meteor } from 'meteor/meteor';
 export default () => {
   const projectId = state.selectedProjectId;
   Meteor.subscribe('todos', {projectId});
-  state.projectTodos = Collections.Todos.find({projectId}).fetch();
+  // MobX ObservableArray.replace() needs to be used instad of direct assignment 
+  // to keep observable array instance and prevent re-rendering of the whole array
+  state.projectTodos.replace(Collections.Todos.find({projectId}).fetch());
 };
 
 // index.js
@@ -70,7 +72,7 @@ export default () => {
   const projectId = state.selectedProjectId;
   Meteor.subscribe('todos', {projectId});
   action('updateTodosFromAutorun', (todos) => {
-    state.projectTodos = todos;
+    state.projectTodos.replace(todos);
   })(projectId ? Collections.Todos.find({projectId}).fetch() : []);
 };
 
