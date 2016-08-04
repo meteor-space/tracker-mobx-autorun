@@ -5,7 +5,6 @@ export default (trackerMobxAutorun) => {
   let mobxDisposer = null;
   let computation = null;
   let hasBeenStarted;
-  let subscriptionHandle;
   return {
     start() {
       let isFirstRun = true;
@@ -16,10 +15,9 @@ export default (trackerMobxAutorun) => {
         }
         mobxDisposer = autorun(() => {
           if (isFirstRun) {
-            subscriptionHandle = trackerMobxAutorun();
+            trackerMobxAutorun();
           } else {
             computation.invalidate();
-            subscriptionHandle && subscriptionHandle.stop();
           }
           isFirstRun = false;
         });
@@ -30,7 +28,6 @@ export default (trackerMobxAutorun) => {
       if (hasBeenStarted) {
         computation.stop();
         mobxDisposer();
-        subscriptionHandle && subscriptionHandle.stop();
       }
     }
   };
