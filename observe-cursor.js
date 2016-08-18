@@ -4,17 +4,16 @@ import { action } from 'mobx';
 export default (actionPrefix = '', observableArray, handle, cursor) => {
 
   if (handle.ready()) {
-    // initial fetch...
+    // initially fetch all documents and store them in the observable array
     Tracker.nonreactive(() => {
       action(`${actionPrefix}: initial fetch`, (comments) => {
         observableArray.replace(comments);
       })(cursor.fetch());
     });
 
-    // ...and then observe
+    // observe changes after initial fetch
     cursor.observe({
-      // we don't want that the addedAt function is triggered x times at the beginning
-      // just fetch them once (see above)
+      // _suppress_initial suppresses addedAt callback for documents initially fetched
       _suppress_initial: true,
       addedAt: action(`${actionPrefix}: document added`, (document, atIndex) => {
         observableArray.splice(atIndex, 0, document);
