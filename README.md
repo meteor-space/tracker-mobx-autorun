@@ -10,71 +10,35 @@ MobX and [Tracker](https://docs.meteor.com/api/tracker.html#Tracker-autorun) can
 ### Usage
 
 ```javascript
-// my-store.js
-import { observable } from 'mobx';
-
-export default observable({
-  selectedProjectId: null,
-  projectTodos: []
-});
-
-// autorun/todos.js
-import state from '../my-store';
-import * as Collections from '../../infrastructure/collections';
 import { Meteor } from 'meteor/meteor';
+import { observable, useStrict } from 'mobx';
+import autorun, { observe } from 'meteor/space:tracker-mobx-autorun';
 
-export default () => {
-  const projectId = state.selectedProjectId;
-  Meteor.subscribe('todos', {projectId});
-  // MobX ObservableArray.replace() needs to be used instad of direct assignment 
-  // to keep observable array instance and prevent re-rendering of the whole array
-  state.projectTodos.replace(Collections.Todos.find({projectId}).fetch());
-};
-
-// index.js
-import autorun from 'meteor/space:tracker-mobx-autorun';
-import todos from './autorun/todos';
-
-export const todosAutorun = autorun(todos);
-
-Meteor.startup(function() {
-  if (Meteor.isClient) {
-    todosAutorun.start();
-  }
-});
-
-```
-
-### Usage with MobX _strict mode_
-Using MobX [actions](https://mobxjs.github.io/mobx/refguide/action.html)
-is mandatory when strict mode is enabled.
-
-```javascript
-// index.js - enabling MobX strict mode
-import { useStrict } from 'mobx';
+// Optionally MobX strict mode makes state in the store immutable, in that case
+// state can ony be changed by MobX actions
 useStrict(true);
 
-// actions/projects.js
-import state from '../store';
-import { action } from 'mobx';
+const Todos = new Mongo.Collection('todos');
 
-export const selectProject = action('selectProject', (projectId) => {
-  state.selectedProjectId = projectId;
+const state = observable({
+  selectedProjectId: null,
+  projectTodos: []
 });
 
-// autorun/todos.js
-import state from '../my-store';
-import * as Collections from '../../infrastructure/collections';
-import { Meteor } from 'meteor/meteor';
-import { action } from 'mobx';
+const syncProjectTodos = autorun(() => {
+  const projectId = state.selectedProjectId;
+  const handle = Meteor.subscribe('todos', { projectId });
+  const cursor = Todos.find({ projectId });
+  observe('todosAutorun', state.projectTodos, handle, cursor);
+});
 
-export default () => {
-  const projectId = state.selectedProjectId;
-  Meteor.subscribe('todos', {projectId});
-  action('updateTodosFromAutorun', (todos) => {
-    state.projectTodos.replace(todos);
-  })(projectId ? Collections.Todos.find({projectId}).fetch() : []);
-};
+// Starting autorun on startup or when needed
+Meteor.startup(() => {
+  if (Meteor.isClient) syncProjectTodos().start();
+});
+
+// Stopping autorun
+syncProjectTodos().stop();
 
 ```
 
